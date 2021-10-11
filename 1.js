@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-const result = Object.assign({ age: 20 }, { name: "gaowujian" });
-console.log("result:", result);
-=======
 class C {
   foo = "false";
   bar;
@@ -20,4 +16,3 @@ class C {
 
 const c = new C();
 console.log("c:", c);
->>>>>>> 49311c8256a1b92d0314ecf53e9f111d652bb98f
