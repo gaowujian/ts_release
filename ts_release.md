@@ -420,3 +420,29 @@ function create<T extends HTMLElement = HTMLDivElement, U = T[]>(element?: T, ch
   ```
 
   - 针对对象字面量的推导进行了优化
+  - 添加新的--esModuleInterop 配置
+
+    - https://github.com/microsoft/TypeScript/issues/16093
+    - 在 2.7 版本之前有两个问题
+
+      - 1. ts 会把对 commonjs 模块的导入等价位 ts 的命名空间导入 import \* as foo from foo 等价于 const foo = require("foo")。 但是这里出现了一些问题，因为根据 ecmascript 的规定 命名空间也就是这里的 foo 应该是一个普通的对象，所以不能对标 require 的结果，因为实际上 const foo = require("foo")返回的不一定是一个普通对象，可能是基本类型或者函数等。所以他们是存在不同的
+
+      ```
+        import * as data from "./common1";
+        import data2 from "./common2";
+        console.log("data:", data);
+        console.log("data2:", data2);
+        ===>
+        var data = require("./common1");
+        var common2_1 = require("./common2");
+        console.log("data:", data);
+        console.log("data2:", common2_1["default"]);
+      ```
+
+      - 2. 其次第二个问题就是, import data from "./common2"的语法会被等价处理为 const data = require("./common2").["default"]。这就要求一个 commonjs 在导出对象上有一个 default 属性，可是这在大多数的 commonjs 导出库里 是没有的。
+
+  - 在支持了这个 esModuleInterp 的属性之后，以上的问题都得到了解决
+    - 1。通过 import \* as foo from "foo" 得到的命名空间 foo，会被标记为无法调用执行，被当做是一个普通的对象
+      ![提示无法对命名空间对象进行方法调用](./images/1.png)
+    - 2. 同时支持了 import foo from foo 直接获取到 module.exports 的导出对象，就像我们期望的那样，不需要借助 default 属性
+      - 所以 ts 官方推荐，不管是在新老项目中都推荐把这个属性开启，并且把之前的命名空间导入方式改成现在的默认导入方式
