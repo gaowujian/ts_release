@@ -31,5 +31,4 @@ for (let s of strings) {
     console.log(`'${s}' ${isMatch ? "matches" : "does not match"} '${name}'.`);
   }
 }
-
 export {};
