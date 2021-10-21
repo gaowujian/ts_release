@@ -11,19 +11,3 @@ app.get("/", function (req, res) {
 app.listen(3000, () => {
   console.log("server is running on 3000");
 });
-
-declare class Example {
-  public Method(): void;
-}
-
-// declare interface Person {
-//   name: string;
-// }
-
-declare type Person = {
-  name: string;
-};
-
-const a: Person = {
-  name: "gao",
-};
