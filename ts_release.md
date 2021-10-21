@@ -189,7 +189,7 @@ function assign<T>(obj: T, props: Partial<T>): void {
 
 ```
 function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
-  let result: any;
+  let result: any = {};
   for (const item of keys) {
     result[item] = obj[item];
   }
@@ -446,3 +446,48 @@ function create<T extends HTMLElement = HTMLDivElement, U = T[]>(element?: T, ch
       ![提示无法对命名空间对象进行方法调用](./images/1.png)
     - 2. 同时支持了 import foo from foo 直接获取到 module.exports 的导出对象，就像我们期望的那样，不需要借助 default 属性
       - 所以 ts 官方推荐，不管是在新老项目中都推荐把这个属性开启，并且把之前的命名空间导入方式改成现在的默认导入方式
+
+### 2.8
+
+- 在 2.1 版本开始支持类型的 map 操作之后，现在开始支持条件类型，使用 extends 关键字
+- 支持分发条件类型
+- 预定义的条件类型
+  - Exclude<T, U> — Exclude from T those types that are assignable to U.
+  - Extract<T, U> — Extract from T those types that are assignable to U.
+  - NonNullable<T> — Exclude null and undefined from T.
+  - ReturnType<T> — Obtain the return type of a function type.
+  - InstanceType<T> — Obtain the instance type of a constructor function type.
+- 类型的 map 操作中，支持对 readonly 和可选？的操作
+- 在 js 文件中，优化对命名空间的支持
+- JSX 的类型检查元源于一个 JSX 的命名空间，在 2.8 之后，JSX 的相关类型，可以从不同的 JSX factory 中获取，例如 React
+- 新增--emitDeclarationOnly 配置项
+
+### 2.9
+
+- 支持对属性非 string，例如 number，symbol，进行 keyof 操作
+- 支持在 jsx 语法中使用泛型
+- 支持标记模板语法，是 ecmascript 在 js 中引入的一种新语法，也是一种函数的调用方式
+
+  ```
+  let total = 30;
+  let str = tagtem`The total is ${total} (${total * 1.05} with tax)`;
+  function tagtem(literals, ...values) {
+    console.log("literals:", literals); // [ 'The total is ', ' (', ' with tax)' ]
+    console.log("values:", values); // [ 30, 31.5 ]
+    let output = "";
+    let index;
+    for (index = 0; index < values.length; index++) {
+      output += literals[index] + values[index];
+    }
+    output += literals[index];
+    return output;
+  }
+  console.log(str); //The total is 30 (31.5 with tax)
+  ```
+
+  - ts 支持该语法，并可以使用泛型
+
+  ```
+    declare function tag<T>(strs: TemplateStringsArray, ...args: T[]): T;
+    let a = tag<string | number>`${100} ${"hello"}`;
+  ```
